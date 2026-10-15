@@ -25,6 +25,12 @@ export const schema = {
         description:
           "Optional specific sheet ID to read. If not provided with ranges, reads first sheet.",
       },
+      valueRenderOption: {
+        type: "string",
+        enum: ["FORMATTED_VALUE", "UNFORMATTED_VALUE", "FORMULA"],
+        description:
+          "How values should be rendered. FORMATTED_VALUE (default) returns display values, UNFORMATTED_VALUE returns raw values, FORMULA returns formulas (e.g. '=SUM(A1:A10)') instead of computed values.",
+      },
     },
     required: ["spreadsheetId"],
   },
@@ -101,11 +107,14 @@ export async function readSheet(
   try {
     let response;
 
+    const valueRenderOption = args.valueRenderOption || "FORMATTED_VALUE";
+
     if (args.ranges) {
       // Read specific ranges
       response = await sheets.spreadsheets.values.batchGet({
         spreadsheetId: args.spreadsheetId,
         ranges: args.ranges,
+        valueRenderOption,
       });
     } else if (args.sheetId !== undefined) {
       // Get sheet name from sheet ID first
@@ -125,12 +134,14 @@ export async function readSheet(
       response = await sheets.spreadsheets.values.get({
         spreadsheetId: args.spreadsheetId,
         range: sheet.properties.title,
+        valueRenderOption,
       });
     } else {
       // Read first sheet by default
       response = await sheets.spreadsheets.values.get({
         spreadsheetId: args.spreadsheetId,
         range: "A:ZZ", // Read all possible columns
+        valueRenderOption,
       });
     }
 

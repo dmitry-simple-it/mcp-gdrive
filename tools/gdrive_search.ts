@@ -60,6 +60,9 @@ export async function search(
     pageToken: args.pageToken,
     orderBy: "modifiedTime desc",
     fields: "nextPageToken, files(id, name, mimeType, modifiedTime, size)",
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+    corpora: "allDrives",
   });
 
   const fileList = res.data.files

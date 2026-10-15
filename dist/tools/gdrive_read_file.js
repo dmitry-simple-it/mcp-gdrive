@@ -31,6 +31,7 @@ async function readGoogleDriveFile(fileId) {
     const file = await drive.files.get({
         fileId,
         fields: "mimeType,name",
+        supportsAllDrives: true,
     });
     // For Google Docs/Sheets/etc we need to export
     if (file.data.mimeType?.startsWith("application/vnd.google-apps")) {

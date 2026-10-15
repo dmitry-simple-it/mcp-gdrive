@@ -15,7 +15,7 @@ export const schema = {
             },
             value: {
                 type: "string",
-                description: "New cell value",
+                description: "New cell value. Supports formulas (e.g. '=A1+B1'), booleans (TRUE/FALSE), numbers, and text",
             },
         },
         required: ["fileId", "range", "value"],
@@ -27,7 +27,7 @@ export async function updateCell(args) {
     await sheets.spreadsheets.values.update({
         spreadsheetId: fileId,
         range: range,
-        valueInputOption: "RAW",
+        valueInputOption: "USER_ENTERED",
         requestBody: {
             values: [[value]],
         },

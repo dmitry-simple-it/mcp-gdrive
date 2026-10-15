@@ -4,14 +4,14 @@ import fs from "fs";
 import path from "path";
 
 export const SCOPES = [
-  "https://www.googleapis.com/auth/drive.readonly",
+  "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/spreadsheets",
 ];
 
 // Get credentials directory from environment variable or use default
 const CREDS_DIR =
   process.env.GDRIVE_CREDS_DIR ||
-  path.join(path.dirname(new URL(import.meta.url).pathname), "../../../");
+  path.join(process.env.HOME || "", ".config", "mcp-gdrive");
 
 
 // Ensure the credentials directory exists
@@ -89,9 +89,20 @@ async function authenticateAndSaveCredentials() {
 export async function loadCredentialsQuietly() {
   console.error("Attempting to load credentials from:", credentialsPath);
 
+  const keyfilePath = path.join(CREDS_DIR, "gcp-oauth.keys.json");
+  let clientId = process.env.CLIENT_ID;
+  let clientSecret = process.env.CLIENT_SECRET;
+
+  if ((!clientId || !clientSecret) && fs.existsSync(keyfilePath)) {
+    const keys = JSON.parse(fs.readFileSync(keyfilePath, "utf-8"));
+    const keyData = keys.installed || keys.web;
+    clientId = clientId || keyData?.client_id;
+    clientSecret = clientSecret || keyData?.client_secret;
+  }
+
   const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
+    clientId,
+    clientSecret,
   );
 
   if (!fs.existsSync(credentialsPath)) {

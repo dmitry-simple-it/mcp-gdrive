@@ -50,6 +50,9 @@ export async function search(args) {
         pageToken: args.pageToken,
         orderBy: "modifiedTime desc",
         fields: "nextPageToken, files(id, name, mimeType, modifiedTime, size)",
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
+        corpora: "allDrives",
     });
     const fileList = res.data.files
         ?.map((file) => `${file.id} ${file.name} (${file.mimeType})`)
